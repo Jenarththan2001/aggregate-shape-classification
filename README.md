@@ -285,8 +285,13 @@ DATASET_DIR = "/path/to/your/dataset"   # update this to your local path
 
 ## Authors
 
-**A. Jenarththan · S. Nathiskar · V. Aarthy · P. Jeyananthan**
+**A. Jenarththan · S. Nathiskar**
 Department of Computer Engineering, University of Jaffna, Sri Lanka
 
-**Supervisor: D. N. Subramaniam**
-Department of Civil Engineering, University of Jaffna, Sri Lanka
+**Supervisor**
+Dr. (Mrs.) P. Jeyananthan — Department of Computer Engineering, University of Jaffna, Sri Lanka
+
+**Co-Supervisors**
+Prof. N. Sathiparan — Department of Civil Engineering, University of Jaffna, Sri Lanka
+Prof. D. N. Subramaniam — Department of Civil Engineering, University of Jaffna, Sri Lanka
+Miss. V. Aarthy — Department of Computer Engineering, University of Jaffna, Sri Lanka
