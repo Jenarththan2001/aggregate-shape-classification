@@ -112,17 +112,17 @@ Input (3, 224, 224)
     → Linear(512 → 6) # classifier
 ```
 
-| Model | Conv Layers | Channel Progression | Parameters | Model Size |
-|---|---|---|---|---|
-| CNN2 | 2 | 3→32→64 | ~115 K | ~0.5 MB |
-| CNN3 | 3 | 3→32→64→128 | ~436 K | ~1.8 MB |
-| CNN4 | 4 | 3→32→64→128→256 | ~1.8 M | ~7 MB |
-| CNN5 | 5 | 3→32→64→128→256→512 | ~6.5 M | ~26 MB |
-| **CNN6** | **6** | **3→32→64→128→256→512→1024** | **~6.8 M** | **~27 MB** |
-| CNN7 | 7 | 3→32→64→128→256→512→512→1024 | ~101 M | ~101 MB |
-| CNN8 | 8 | deeper extension of CNN7 | ~245 M | ~245 MB |
+| Model | Conv Layers | Channel Progression | Parameters | Size | CNN Acc | Best (+ SVM) |
+|---|---|---|---|---|---|---|
+| CNN2 | 2 | 3→32→64 | 115 K | 0.1 MB | 61.27% | 61.93% |
+| CNN3 | 3 | 3→32→64→128 | 436 K | 0.5 MB | 62.60% | 64.03% |
+| CNN4 | 4 | 3→32→64→128→256 | 1.8 M | 1.8 MB | 68.40% | 69.47% |
+| CNN5 | 5 | 3→32→64→128→256→512 | 6.8 M | 6.8 MB | 73.53% | 75.67% |
+| **CNN6** | **6** | **3→32→64→128→256→512→1024** | **6.8 M** | **27.3 MB** | **82.20%** | **82.33%** |
+| CNN7 | 7 | 3→32→64→128→256→512→512→1024 | 101 M | 104.9 MB | 81.13% | 81.63% |
+| CNN8 | 8 | deeper extension of CNN7 | 256 M | 256.0 MB | 67.07% | 73.63% |
 
-CNN6 achieved the best balance of accuracy and model size among custom architectures.
+CNN6 achieved the best accuracy among custom models. Performance peaks at 6 layers — CNN7 and CNN8 show degraded CNN-only accuracy without residual connections, though CNN8 benefits significantly from mRMR + SVM (+6.56%).
 
 ---
 
@@ -145,24 +145,30 @@ mRMR (Minimum Redundancy Maximum Relevance) greedily selects features that maxim
 
 ## Results
 
-### Six-Class Classification (All Milling Levels)
+### Pretrained Models — 6-Class
 
-| Model | Overall Accuracy | Macro F1 |
-|---|---|---|
-| **ResNet50** | **85.67%** | — |
-| MobileNetV2 | 84.50% | — |
-| Xception | 84.37% | — |
-| EfficientNetB0 | 83.33% | — |
-| CNN6 + SVM (mRMR-96) | 82.33% | — |
-| CNN6 (plain) | 82.20% | — |
-| CNN7 | 81.13% | — |
-| CNN5 | 73.53% | — |
-| CNN4 | 68.40% | — |
-| CNN8 | 67.07% | — |
-| CNN3 | 62.60% | — |
-| CNN2 | 61.27% | — |
+| Model | Accuracy | Macro F1 | Parameters | Size |
+|---|---|---|---|---|
+| **ResNet50** | **85.67%** | **85.64%** | 23.8 M | 91.0 MB |
+| MobileNetV2 | 84.50% | 84.43% | 2.4 M | 9.4 MB |
+| Xception | 84.37% | 84.41% | 21.1 M | 80.7 MB |
+| EfficientNetB0 | 83.33% | 83.49% | 4.2 M | 16.2 MB |
 
-ResNet50 achieved the highest overall accuracy at **85.67%** on the full 3,000-image test set.
+ResNet50 achieved the highest overall accuracy at **85.67%** on the full 3,000-image test set. MobileNetV2 is the most efficient — second-best accuracy at only 9.4 MB (10× smaller than ResNet50).
+
+### Custom CNNs — 6-Class (CNN alone vs CNN + mRMR + SVM)
+
+| Model | CNN Accuracy | CNN Macro F1 | +SVM Accuracy | +SVM Macro F1 | Size |
+|---|---|---|---|---|---|
+| **CNN6** | 82.20% | 82.24% | **82.33%** | **82.23%** | 27.3 MB |
+| CNN7 | 81.13% | 80.90% | 81.63% | 81.59% | 104.9 MB |
+| CNN5 | 73.53% | 73.54% | 75.67% | 75.66% | 6.8 MB |
+| CNN8 | 67.07% | 65.67% | 73.63% | 73.68% | 256.0 MB |
+| CNN4 | 68.40% | 68.13% | 69.47% | 69.48% | 1.8 MB |
+| CNN3 | 62.60% | 61.78% | 64.03% | 62.94% | 0.5 MB |
+| CNN2 | 61.27% | 58.94% | 61.93% | 60.22% | 0.1 MB |
+
+CNN6 achieves the best custom-model accuracy. mRMR + SVM consistently improves over CNN-alone — the largest gain is CNN8 (+6.56%), which benefits most from dimensionality reduction via mRMR.
 
 ---
 
