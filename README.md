@@ -1,16 +1,17 @@
 # Aggregate Shape Classification using Deep Learning
 
-> **Final Year Project — Department of Computer Engineering, University of Jaffna, Sri Lanka**
->
-> Deep learning pipeline for classifying construction aggregate shapes produced at different milling revolution speeds using CNN architectures and a hybrid CNN+SVM approach — implemented in PyTorch.
+**Final Year Project — Department of Computer Engineering, University of Jaffna, Sri Lanka**
+
+Deep learning pipeline for classifying construction aggregate shapes produced at different milling revolution speeds, using transfer learning CNNs, custom CNN architectures, and a hybrid CNN + SVM approach — implemented in PyTorch.
 
 ---
 
 ## Table of Contents
-- [Project Overview](#project-overview)
+
+- [Problem Statement](#problem-statement)
 - [Dataset](#dataset)
 - [Preprocessing Pipeline](#preprocessing-pipeline)
-- [Models](#models)
+- [Model Architectures](#model-architectures)
 - [Results](#results)
 - [Project Structure](#project-structure)
 - [Installation](#installation)
@@ -19,140 +20,162 @@
 
 ---
 
-## Project Overview
+## Problem Statement
 
-Construction aggregates are processed at different milling revolution speeds (0, 100, 500, 1000, 1500, and 2000 RPM), each producing a distinct particle shape and surface texture. This project builds an automated image classification system that identifies the milling class of an aggregate particle from a single photograph — replacing manual, time-consuming sieve analysis with a fast, camera-based approach.
+Construction aggregates are processed at different milling revolution speeds — 0, 100, 500, 1000, 1500, and 2000 RPM — each producing a distinct particle shape and surface texture. As milling intensity increases, particles progressively become rounder and smoother, which directly affects the mechanical behaviour of concrete mixtures.
 
-The figure below shows how aggregate morphology evolves across the six milling stages:
+This project builds a **six-class automated image classification system** that identifies the milling class of an aggregate particle from a single photograph, replacing manual and time-consuming sieve-based analysis with a fast, camera-based deep learning approach.
 
-![Milling Morphological Evolution](images/fig_milling_morphological_evolution_stages.png)
-
-*Morphological evolution of aggregate particles across six milling revolution classes: 0, 100, 500, 1000, 1500, and 2000 RPM.*
+**Classes:** `0 RPM` · `100 RPM` · `500 RPM` · `1000 RPM` · `1500 RPM` · `2000 RPM`
 
 ---
 
 ## Dataset
 
-| Property | Value |
+| Property | Detail |
 |---|---|
 | Number of classes | 6 (0, 100, 500, 1000, 1500, 2000 RPM) |
 | Images per class | 500 |
 | Total images | 3,000 |
 | Image type | RGB photographs of individual aggregate particles |
-| Preprocessing | CLAHE enhancement + segmentation + white background |
+| Preprocessing | CLAHE enhancement + binary segmentation + white background isolation |
 | Input resolution | 224 × 224 px (resized for all models) |
+
+The dataset is not included in this repository due to size. Contact the authors for access.
 
 ---
 
 ## Preprocessing Pipeline
 
-All aggregate images were preprocessed offline using **Contrast Limited Adaptive Histogram Equalization (CLAHE)** before training. CLAHE enhances local contrast while suppressing noise — critical for aggregate images with non-uniform illumination and irregular surface textures.
+All images were preprocessed **offline** using **Contrast Limited Adaptive Histogram Equalization (CLAHE)** before dataset construction. CLAHE enhances local contrast while suppressing noise amplification — essential for aggregate images with non-uniform illumination, irregular particle boundaries and varying surface textures.
 
-**Pipeline steps:**
-1. Convert to grayscale
-2. Apply CLAHE (clip limit = 2.0, tile grid = 8×8)
-3. Binary thresholding + morphological opening
-4. Largest-contour extraction to isolate the aggregate particle
-5. Replace background with uniform white fill
+**Steps applied to every image:**
 
-![CLAHE Pipeline](images/fig05_clahe_aggregate_schematic.png)
+1. Convert RGB image to grayscale
+2. Apply CLAHE — clip limit `2.0`, tile grid `8 × 8` (64 tiles per image), via OpenCV `createCLAHE`
+3. Binary thresholding to separate particle from background
+4. Morphological opening to remove small noise regions
+5. Largest-contour extraction to isolate the single aggregate particle
+6. Replace background with uniform white fill
 
-*Schematic of the CLAHE preprocessing pipeline applied to an aggregate image.*
+This pipeline ensures consistent illumination, enhanced surface texture contrast, and clean background separation across all six milling classes.
 
 ---
 
-## Models
+## Model Architectures
 
-### Pretrained CNN Architectures (Transfer Learning)
+### 1. Pretrained CNNs — Transfer Learning
 
-All pretrained models were initialised with ImageNet weights and extended with a custom classification head:
-> `Dropout(0.3)` → `Linear(→ 128-d embedding)` → `ReLU` → `Linear(→ 6 classes)`
+Four pretrained architectures were fine-tuned for the six-class aggregate classification task. All models were initialised with **ImageNet pretrained weights** and extended with a shared custom classification head:
 
-| Model | Parameters | ImageNet Weights |
+```
+Backbone (frozen initial layers)
+    → Dropout(p=0.3)
+    → Linear(in_features → 128)   # 128-dimensional embedding layer
+    → ReLU
+    → Linear(128 → 6)             # six-class output
+```
+
+| Model | Backbone Parameters | Model Size |
 |---|---|---|
-| ResNet50 | 23.8 M | Yes |
-| EfficientNetB0 | 4.2 M | Yes |
-| MobileNetV2 | 2.4 M | Yes |
-| Xception | 21.1 M | Yes |
+| ResNet50 | 23.8 M | ~91 MB |
+| EfficientNetB0 | 4.2 M | ~17 MB |
+| MobileNetV2 | 2.4 M | ~9 MB |
+| Xception | 21.1 M | ~81 MB |
 
-**Training configuration:**
-- Optimiser: Adam (lr = 1×10⁻⁵)
-- Batch size: 32
-- Augmentation: horizontal flip, ±20° rotation, zoom 0.8–1.2, ImageNet normalisation
-- Early stopping: patience = 5, minimum 20 epochs, best-weight restoration
+**Training configuration (all pretrained models):**
 
----
-
-### Custom CNN Architectures (Trained from Scratch)
-
-Seven custom CNN architectures (CNN2–CNN8) were designed and trained from scratch to investigate how architectural depth affects classification performance on this domain-specific task.
-
-| Model | Conv Layers | Parameters | Accuracy |
-|---|---|---|---|
-| CNN2 | 2 | ~115 K | 61.27% |
-| CNN3 | 3 | ~436 K | 62.60% |
-| CNN4 | 4 | ~1.8 M | 68.40% |
-| CNN5 | 5 | ~6.5 M | 73.53% |
-| **CNN6** | **6** | **~6.8 M** | **82.20%** |
-| CNN7 | 7 | ~101 M | 81.13% |
-| CNN8 | 8 | ~245 M | 67.07% |
-
-CNN6 (6 convolutional layers: 3→32→64→128→256→512→1024) achieved the best accuracy among custom models at **82.20%** with a compact 27 MB weight file.
-
----
-
-### Hybrid CNN + SVM
-
-CNN6 was also used as a feature extractor. The 512-dimensional embeddings from the penultimate layer were passed through mRMR feature selection (96 features selected from 512) followed by a StandardScaler and an RBF-kernel SVM (C=10).
-
-| Pipeline | Accuracy |
+| Hyperparameter | Value |
 |---|---|
-| CNN6 (FC head) | 82.20% |
-| CNN6 → mRMR(96) → SVM | 82.33% |
+| Optimiser | Adam |
+| Learning rate | 1 × 10⁻⁵ |
+| Batch size | 32 |
+| Early stopping patience | 5 epochs (min 20 epochs) |
+| Best-weight restoration | Lowest validation loss |
+| Augmentation | Horizontal flip (p=0.5), rotation ±20°, zoom 0.8–1.2 |
+| Normalisation | ImageNet mean/std |
+
+---
+
+### 2. Custom CNNs — Trained from Scratch
+
+Seven custom CNN architectures (CNN2 through CNN8) were designed and trained from scratch to investigate how network depth and parameter count affect classification performance on this domain-specific task.
+
+All custom CNNs follow this general pattern:
+
+```
+Input (3, 224, 224)
+    → [Conv2d(3×3, padding=1) → ReLU → MaxPool2d(2×2)] × N layers
+    → AdaptiveAvgPool2d(1×1)
+    → Linear(→ 512)   # embedding
+    → Dropout(0.5)
+    → Linear(512 → 6) # classifier
+```
+
+| Model | Conv Layers | Channel Progression | Parameters | Model Size |
+|---|---|---|---|---|
+| CNN2 | 2 | 3→32→64 | ~115 K | ~0.5 MB |
+| CNN3 | 3 | 3→32→64→128 | ~436 K | ~1.8 MB |
+| CNN4 | 4 | 3→32→64→128→256 | ~1.8 M | ~7 MB |
+| CNN5 | 5 | 3→32→64→128→256→512 | ~6.5 M | ~26 MB |
+| **CNN6** | **6** | **3→32→64→128→256→512→1024** | **~6.8 M** | **~27 MB** |
+| CNN7 | 7 | 3→32→64→128→256→512→512→1024 | ~101 M | ~101 MB |
+| CNN8 | 8 | deeper extension of CNN7 | ~245 M | ~245 MB |
+
+CNN6 achieved the best balance of accuracy and model size among custom architectures.
+
+---
+
+### 3. Hybrid CNN + SVM
+
+CNN6 was extended as a feature extractor for a hybrid pipeline:
+
+```
+Image
+  → CNN6 backbone → 512-d embedding (from penultimate FC layer)
+  → mRMR feature selection → 96 features selected from 512
+  → StandardScaler
+  → RBF-kernel SVM (C=10, gamma='scale')
+  → Class prediction
+```
+
+mRMR (Minimum Redundancy Maximum Relevance) greedily selects features that maximise mutual information with the class label while minimising redundancy among selected features. 96 features were selected from the 512-dimensional embedding.
 
 ---
 
 ## Results
 
-### 6-Class Classification (All Milling Levels)
+### Six-Class Classification (All Milling Levels)
 
-![Model Accuracy Comparison](images/fig32_bar_chart_6class_accuracy.png)
+| Model | Overall Accuracy | Macro F1 |
+|---|---|---|
+| **ResNet50** | **85.67%** | — |
+| MobileNetV2 | 84.50% | — |
+| Xception | 84.37% | — |
+| EfficientNetB0 | 83.33% | — |
+| CNN6 + SVM (mRMR-96) | 82.33% | — |
+| CNN6 (plain) | 82.20% | — |
+| CNN7 | 81.13% | — |
+| CNN5 | 73.53% | — |
+| CNN4 | 68.40% | — |
+| CNN8 | 67.07% | — |
+| CNN3 | 62.60% | — |
+| CNN2 | 61.27% | — |
 
-*Per-class and overall accuracy comparison across all pretrained and custom CNN models.*
-
-| Model | Overall Accuracy |
-|---|---|
-| **ResNet50** | **85.67%** |
-| MobileNetV2 | 84.50% |
-| Xception | 84.37% |
-| EfficientNetB0 | 83.33% |
-| CNN6 + SVM | 82.33% |
-| CNN6 | 82.20% |
-
-### ResNet50 Training Curves
-
-![ResNet50 Training Curves](images/fig16_training_curves_resnet50.png)
-
-*ResNet50 training and validation loss/accuracy curves over training epochs.*
-
-### ResNet50 Confusion Matrix
-
-![ResNet50 Confusion Matrix](images/fig17_cm_count_resnet50.png)
-
-*Confusion matrix for ResNet50 on the 3,000-image test set (500 per class).*
+ResNet50 achieved the highest overall accuracy at **85.67%** on the full 3,000-image test set.
 
 ---
 
-### Subclass Experiments (ResNet50)
+### Subclass Experiments — ResNet50
 
-When the six-class problem was reduced to targeted four-class and three-class subsets, classification accuracy improved significantly:
+When the six-class problem was reduced to targeted four-class and three-class subsets, accuracy improved significantly, demonstrating that morphologically similar intermediate classes (500–1500 RPM) are the primary source of confusion.
 
-| Experiment | Classes | Accuracy |
-|---|---|---|
-| 4-class (0, 100, 1000, 2000) | 4 | **97.50%** |
-| 4-class (0, 100, 1500, 2000) | 4 | **97.50%** |
-| 4-class (0, 100, 500, 2000) | 4 | 95.35% |
-| 3-class (500, 1000, 1500) | 3 | 78.00% |
+| Experiment | Classes | Test Samples | Accuracy |
+|---|---|---|---|
+| 4-class | 0, 100, 1000, 2000 RPM | 2,000 | **97.50%** |
+| 4-class | 0, 100, 1500, 2000 RPM | 2,000 | **97.50%** |
+| 4-class | 0, 100, 500, 2000 RPM | 2,000 | 95.35% |
+| 3-class | 500, 1000, 1500 RPM | 1,500 | 78.00% |
 
 ---
 
@@ -160,12 +183,41 @@ When the six-class problem was reduced to targeted four-class and three-class su
 
 ```
 aggregate-shape-classification/
-├── preprocessing/               # CLAHE preprocessing & histogram analysis notebooks
-├── pretrained_models/           # ResNet50, EfficientNetB0, MobileNetV2, Xception training
-├── custom_cnn/                  # Custom CNN2–CNN8 and Hybrid CNN+SVM notebooks
-├── subclass_experiments/        # 4-class and 3-class ResNet50 experiments
-├── analysis/                    # ROC/PR curves, probability bar charts
-├── images/                      # Key figures used in this README
+│
+├── preprocessing/
+│   ├── clahe_pipeline.ipynb              # CLAHE preprocessing walkthrough
+│   ├── basic_he_illustration.ipynb       # Histogram equalization illustration
+│   ├── clahe_schematic.ipynb             # CLAHE schematic diagram generation
+│   ├── contrast_stretching_diagram.ipynb # Contrast stretching visualization
+│   ├── he_local_vs_global.ipynb          # HE local vs global comparison
+│   └── histogram_figure.ipynb            # Histogram type figure generation
+│
+├── pretrained_models/
+│   ├── ResNet50.ipynb                    # ResNet50 fine-tuning (best: 85.67%)
+│   ├── EfficientNetB0.ipynb              # EfficientNetB0 fine-tuning (83.33%)
+│   ├── MobileNetV2.ipynb                 # MobileNetV2 fine-tuning (84.50%)
+│   └── Xception.ipynb                    # Xception fine-tuning (84.37%)
+│
+├── custom_cnn/
+│   ├── CNN2.ipynb                        # 2-layer custom CNN (61.27%)
+│   ├── CNN3.ipynb                        # 3-layer custom CNN (62.60%)
+│   ├── CNN4.ipynb                        # 4-layer custom CNN (68.40%)
+│   ├── CNN5.ipynb                        # 5-layer custom CNN (73.53%)
+│   ├── CNN6.ipynb                        # 6-layer custom CNN — best (82.20%)
+│   ├── CNN7.ipynb                        # 7-layer custom CNN (81.13%)
+│   ├── CNN8.ipynb                        # 8-layer custom CNN (67.07%)
+│   └── Hybrid.ipynb                     # CNN6 + mRMR + SVM (82.33%)
+│
+├── subclass_experiments/
+│   ├── ResNet50_4Class_0_100_500_2000.ipynb    # 4-class: 95.35%
+│   ├── ResNet50_4Class_0_100_1000_2000.ipynb   # 4-class: 97.50%
+│   ├── ResNet50_4Class_0_100_1500_2000.ipynb   # 4-class: 97.50%
+│   └── ResNet50_3Class_500_1000_1500.ipynb     # 3-class: 78.00%
+│
+├── analysis/
+│   ├── ROC_PR_All_Models.py              # ROC and PR curve generation for all models
+│   └── ResNet50_Probability_BarCharts.ipynb  # Per-class probability analysis
+│
 └── requirements.txt
 ```
 
@@ -178,9 +230,9 @@ aggregate-shape-classification/
 git clone https://github.com/Jenarththan2001/aggregate-shape-classification.git
 cd aggregate-shape-classification
 
-# Create a virtual environment
+# Create and activate a virtual environment
 python3 -m venv venv
-source venv/bin/activate        # Linux/Mac
+source venv/bin/activate        # Linux / Mac
 venv\Scripts\activate           # Windows
 
 # Install dependencies
@@ -191,40 +243,46 @@ pip install -r requirements.txt
 
 ## Usage
 
-Each notebook is self-contained. Open in Jupyter and update the dataset path at the top of the notebook before running:
+Each notebook is self-contained. Open in Jupyter Lab or Jupyter Notebook and update the dataset path variable at the top of the notebook before running:
 
 ```python
-DATASET_DIR = "/path/to/your/dataset"   # update this line
+DATASET_DIR = "/path/to/your/dataset"   # update this to your local path
 ```
 
-**Recommended order:**
-1. `preprocessing/` — understand the CLAHE pipeline first
-2. `pretrained_models/ResNet50.ipynb` — best pretrained model
-3. `custom_cnn/CNN6.ipynb` — best custom model
-4. `custom_cnn/Hybrid.ipynb` — CNN + SVM pipeline
-5. `subclass_experiments/` — targeted class experiments
-6. `analysis/` — ROC/PR curves and visualisations
+**Recommended run order:**
+
+1. `preprocessing/clahe_pipeline.ipynb` — understand the preprocessing before training
+2. `pretrained_models/ResNet50.ipynb` — start with the best pretrained model
+3. `pretrained_models/EfficientNetB0.ipynb`, `MobileNetV2.ipynb`, `Xception.ipynb`
+4. `custom_cnn/CNN6.ipynb` — best custom architecture
+5. `custom_cnn/Hybrid.ipynb` — CNN + mRMR + SVM pipeline
+6. `subclass_experiments/` — explore targeted class subsets
+7. `analysis/ROC_PR_All_Models.py` — generate final evaluation plots
 
 ---
 
 ## Requirements
 
-See [requirements.txt](requirements.txt) for the full list. Key dependencies:
-
-| Package | Purpose |
-|---|---|
-| torch / torchvision | Model training and inference |
-| timm | Xception model |
-| scikit-learn | SVM, mRMR feature selection |
-| opencv-python | CLAHE preprocessing |
-| matplotlib / seaborn | Plots and visualisations |
-| Pillow / numpy | Image handling |
+| Package | Version | Purpose |
+|---|---|---|
+| torch | ≥ 2.0.0 | Model training and inference |
+| torchvision | ≥ 0.15.0 | Pretrained models and transforms |
+| timm | ≥ 0.9.0 | Xception architecture |
+| scikit-learn | ≥ 1.3.0 | SVM classifier and mRMR selection |
+| joblib | ≥ 1.3.0 | Model serialisation |
+| opencv-python | ≥ 4.8.0 | CLAHE preprocessing |
+| matplotlib | ≥ 3.7.0 | Training curves and plots |
+| seaborn | ≥ 0.12.0 | Confusion matrix visualisation |
+| Pillow | ≥ 10.0.0 | Image loading |
+| numpy | ≥ 1.24.0 | Numerical operations |
+| pandas | ≥ 2.0.0 | Results tabulation |
+| tqdm | ≥ 4.65.0 | Training progress bars |
 
 ---
 
 ## Authors
 
-**A. Jenarththan, S. Nathiskar, V. Aarthy, P. Jeyananthan**
+**A. Jenarththan · S. Nathiskar · V. Aarthy · P. Jeyananthan**
 Department of Computer Engineering, University of Jaffna, Sri Lanka
 
 **Supervisor: D. N. Subramaniam**
