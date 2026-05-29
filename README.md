@@ -292,6 +292,6 @@ Department of Computer Engineering, University of Jaffna, Sri Lanka
 Dr. (Mrs.) P. Jeyananthan — Department of Computer Engineering, University of Jaffna, Sri Lanka
 
 **Co-Supervisors**
-Prof. N. Sathiparan — Department of Civil Engineering, University of Jaffna, Sri Lanka
-Prof. D. N. Subramaniam — Department of Civil Engineering, University of Jaffna, Sri Lanka
-Miss. V. Aarthy — Department of Computer Engineering, University of Jaffna, Sri Lanka
+- Prof. N. Sathiparan — Department of Civil Engineering, University of Jaffna, Sri Lanka
+- Prof. D. N. Subramaniam — Department of Civil Engineering, University of Jaffna, Sri Lanka
+- Miss. V. Aarthy — Department of Computer Engineering, University of Jaffna, Sri Lanka
