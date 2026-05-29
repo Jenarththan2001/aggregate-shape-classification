@@ -191,38 +191,34 @@ When the six-class problem was reduced to targeted four-class and three-class su
 aggregate-shape-classification/
 │
 ├── preprocessing/
-│   ├── clahe_pipeline.ipynb              # CLAHE preprocessing walkthrough
-│   ├── basic_he_illustration.ipynb       # Histogram equalization illustration
-│   ├── clahe_schematic.ipynb             # CLAHE schematic diagram generation
-│   ├── contrast_stretching_diagram.ipynb # Contrast stretching visualization
-│   ├── he_local_vs_global.ipynb          # HE local vs global comparison
-│   └── histogram_figure.ipynb            # Histogram type figure generation
+│   ├── 01_Crop_Aggregates.ipynb          # Grid detection and individual specimen cropping
+│   └── 02_CLAHE.ipynb                    # CLAHE enhancement + white background pipeline
 │
 ├── pretrained_models/
-│   ├── ResNet50.ipynb                    # ResNet50 fine-tuning (best: 85.67%)
-│   ├── EfficientNetB0.ipynb              # EfficientNetB0 fine-tuning (83.33%)
-│   ├── MobileNetV2.ipynb                 # MobileNetV2 fine-tuning (84.50%)
-│   └── Xception.ipynb                    # Xception fine-tuning (84.37%)
+│   ├── 01_ResNet50.ipynb                 # ResNet50 fine-tuning (best: 85.67%)
+│   ├── 02_EfficientNetB0.ipynb           # EfficientNetB0 fine-tuning (83.33%)
+│   ├── 03_MobileNetV2.ipynb              # MobileNetV2 fine-tuning (84.50%)
+│   └── 04_Xception.ipynb                 # Xception fine-tuning (84.37%)
 │
 ├── custom_cnn/
-│   ├── CNN2.ipynb                        # 2-layer custom CNN (61.27%)
-│   ├── CNN3.ipynb                        # 3-layer custom CNN (62.60%)
-│   ├── CNN4.ipynb                        # 4-layer custom CNN (68.40%)
-│   ├── CNN5.ipynb                        # 5-layer custom CNN (73.53%)
-│   ├── CNN6.ipynb                        # 6-layer custom CNN — best (82.20%)
-│   ├── CNN7.ipynb                        # 7-layer custom CNN (81.13%)
-│   ├── CNN8.ipynb                        # 8-layer custom CNN (67.07%)
-│   └── Hybrid.ipynb                     # CNN6 + mRMR + SVM (82.33%)
+│   ├── 01_CNN2.ipynb                     # 2-layer custom CNN (61.27%)
+│   ├── 02_CNN3.ipynb                     # 3-layer custom CNN (62.60%)
+│   ├── 03_CNN4.ipynb                     # 4-layer custom CNN (68.40%)
+│   ├── 04_CNN5.ipynb                     # 5-layer custom CNN (73.53%)
+│   ├── 05_CNN6.ipynb                     # 6-layer custom CNN — best (82.20%)
+│   ├── 06_CNN7.ipynb                     # 7-layer custom CNN (81.13%)
+│   ├── 07_CNN8.ipynb                     # 8-layer custom CNN (67.07%)
+│   └── 08_Hybrid_CNN_SVM.ipynb           # CNN6 + mRMR + SVM (82.33%)
 │
 ├── subclass_experiments/
-│   ├── ResNet50_4Class_0_100_500_2000.ipynb    # 4-class: 95.35%
-│   ├── ResNet50_4Class_0_100_1000_2000.ipynb   # 4-class: 97.50%
-│   ├── ResNet50_4Class_0_100_1500_2000.ipynb   # 4-class: 97.50%
-│   └── ResNet50_3Class_500_1000_1500.ipynb     # 3-class: 78.00%
+│   ├── 01_ResNet50_4Class_0_100_500_2000.ipynb    # 4-class subset: 95.35%
+│   ├── 02_ResNet50_4Class_0_100_1000_2000.ipynb   # 4-class subset: 97.50%
+│   ├── 03_ResNet50_4Class_0_100_1500_2000.ipynb   # 4-class subset: 97.50%
+│   └── 04_ResNet50_3Class_500_1000_1500.ipynb     # 3-class subset: 78.00%
 │
 ├── analysis/
-│   ├── ROC_PR_All_Models.py              # ROC and PR curve generation for all models
-│   └── ResNet50_Probability_BarCharts.ipynb  # Per-class probability analysis
+│   ├── 01_ROC_PR_All_Models.py           # ROC and PR curve generation for all models
+│   └── 02_ResNet50_Probability_BarCharts.ipynb  # Per-class probability analysis
 │
 └── requirements.txt
 ```
@@ -257,13 +253,14 @@ DATASET_DIR = "/path/to/your/dataset"   # update this to your local path
 
 **Recommended run order:**
 
-1. `preprocessing/clahe_pipeline.ipynb` — understand the preprocessing before training
-2. `pretrained_models/ResNet50.ipynb` — start with the best pretrained model
-3. `pretrained_models/EfficientNetB0.ipynb`, `MobileNetV2.ipynb`, `Xception.ipynb`
-4. `custom_cnn/CNN6.ipynb` — best custom architecture
-5. `custom_cnn/Hybrid.ipynb` — CNN + mRMR + SVM pipeline
-6. `subclass_experiments/` — explore targeted class subsets
-7. `analysis/ROC_PR_All_Models.py` — generate final evaluation plots
+1. `preprocessing/01_Crop_Aggregates.ipynb` — grid detection and specimen cropping
+2. `preprocessing/02_CLAHE.ipynb` — CLAHE enhancement and background removal
+3. `pretrained_models/01_ResNet50.ipynb` — best pretrained model (85.67%)
+4. `pretrained_models/02_EfficientNetB0.ipynb`, `03_MobileNetV2.ipynb`, `04_Xception.ipynb`
+5. `custom_cnn/05_CNN6.ipynb` — best custom architecture (82.20%)
+6. `custom_cnn/08_Hybrid_CNN_SVM.ipynb` — CNN + mRMR + SVM pipeline
+7. `subclass_experiments/` — targeted 4-class and 3-class experiments
+8. `analysis/01_ROC_PR_All_Models.py` — generate final evaluation plots
 
 ---
 
