@@ -22,11 +22,11 @@ Deep learning pipeline for classifying construction aggregate shapes produced at
 
 ## Problem Statement
 
-Construction aggregates are processed at different milling revolution speeds — 0, 100, 500, 1000, 1500, and 2000 RPM — each producing a distinct particle shape and surface texture. As milling intensity increases, particles progressively become rounder and smoother, which directly affects the mechanical behaviour of concrete mixtures.
+Construction aggregates are processed at different numbers of milling revolutions — 0, 100, 500, 1000, 1500, and 2000 — each producing a distinct particle shape and surface texture. As the number of milling revolutions increases, particles progressively become rounder and smoother, which directly affects the mechanical behaviour of concrete mixtures.
 
 This project builds a **six-class automated image classification system** that identifies the milling class of an aggregate particle from a single photograph, replacing manual and time-consuming sieve-based analysis with a fast, camera-based deep learning approach.
 
-**Classes:** `0 RPM` · `100 RPM` · `500 RPM` · `1000 RPM` · `1500 RPM` · `2000 RPM`
+**Classes:** `0` · `100` · `500` · `1000` · `1500` · `2000` revolutions
 
 ---
 
@@ -34,7 +34,7 @@ This project builds a **six-class automated image classification system** that i
 
 | Property | Detail |
 |---|---|
-| Number of classes | 6 (0, 100, 500, 1000, 1500, 2000 RPM) |
+| Number of classes | 6 (0, 100, 500, 1000, 1500, 2000 revolutions) |
 | Images per class | 500 |
 | Total images | 3,000 |
 | Image type | RGB photographs of individual aggregate particles |
@@ -174,14 +174,14 @@ CNN6 achieves the best custom-model accuracy. mRMR + SVM consistently improves o
 
 ### Subclass Experiments — ResNet50
 
-When the six-class problem was reduced to targeted four-class and three-class subsets, accuracy improved significantly, demonstrating that morphologically similar intermediate classes (500–1500 RPM) are the primary source of confusion.
+When the six-class problem was reduced to targeted four-class and three-class subsets, accuracy improved significantly, demonstrating that morphologically similar intermediate classes (500–1500 revolutions) are the primary source of confusion.
 
 | Experiment | Classes | Test Samples | Accuracy |
 |---|---|---|---|
-| 4-class | 0, 100, 1000, 2000 RPM | 2,000 | **97.50%** |
-| 4-class | 0, 100, 1500, 2000 RPM | 2,000 | **97.50%** |
-| 4-class | 0, 100, 500, 2000 RPM | 2,000 | 95.35% |
-| 3-class | 500, 1000, 1500 RPM | 1,500 | 78.00% |
+| 4-class | 0, 100, 1000, 2000 revolutions | 2,000 | **97.50%** |
+| 4-class | 0, 100, 1500, 2000 revolutions | 2,000 | **97.50%** |
+| 4-class | 0, 100, 500, 2000 revolutions | 2,000 | 95.35% |
+| 3-class | 500, 1000, 1500 revolutions | 1,500 | 78.00% |
 
 ---
 
