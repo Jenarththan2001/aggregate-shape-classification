@@ -24,7 +24,7 @@ Deep learning pipeline for classifying construction aggregate shapes produced at
 
 Construction aggregates are processed at different numbers of milling revolutions — 0, 100, 500, 1000, 1500, and 2000 — each producing a distinct particle shape and surface texture. As the number of milling revolutions increases, particles progressively become rounder and smoother, which directly affects the mechanical behaviour of concrete mixtures.
 
-This project builds a **six-class automated image classification system** that identifies the milling class of an aggregate particle from a single photograph, replacing manual and time-consuming sieve-based analysis with a fast, camera-based deep learning approach.
+This project builds a **six-class automated image classification system** that identifies the milling class of an aggregate particle from a single photograph. Traditional shape-factor-based methods and Fourier analysis-based classification have shown limited accuracy in distinguishing within milled classes — this system addresses that gap by using CNNs to learn morphological features directly from images with higher multiclass classification accuracy.
 
 **Classes:** `0` · `100` · `500` · `1000` · `1500` · `2000` revolutions
 
