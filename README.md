@@ -264,6 +264,18 @@ DATASET_DIR = "/path/to/your/dataset"   # update this to your local path
 
 ---
 
+## Training Environment
+
+All notebooks were trained and evaluated on the following hardware:
+
+| Component | Detail |
+|---|---|
+| GPU | NVIDIA GeForce RTX 3050 Ti Laptop GPU |
+| VRAM | 4 GB |
+| Framework | PyTorch (CUDA) |
+
+---
+
 ## Requirements
 
 | Package | Version | Purpose |
