@@ -128,18 +128,21 @@ CNN6 achieved the best accuracy among custom models. Performance peaks at 6 laye
 
 ### 3. Hybrid CNN + SVM
 
-CNN6 was extended as a feature extractor for a hybrid pipeline:
+CNN-5 and CNN-6 are used jointly as feature extractors. Their embeddings are fused and passed through a two-stage feature selection pipeline before SVM classification:
 
 ```
 Image
-  → CNN6 backbone → 512-d embedding (from penultimate FC layer)
-  → mRMR feature selection → 96 features selected from 512
+  → CNN-5 backbone → 256-d embedding
+  → CNN-6 backbone → 512-d embedding
+  → Concatenate → 768-d fused vector
+  → Stage 1: MI pre-filter  (768 → top 200 features)
+  → Stage 2: mRMR (MIQ)    (200 → K*=370 effective 200 features)
   → StandardScaler
-  → RBF-kernel SVM (C=10, gamma='scale')
+  → RBF-kernel SVM (C*=10, gamma*=0.001412)
   → Class prediction
 ```
 
-mRMR (Minimum Redundancy Maximum Relevance) greedily selects features that maximise mutual information with the class label while minimising redundancy among selected features. 96 features were selected from the 512-dimensional embedding.
+The two-stage feature selection first uses Mutual Information to rank all 768 features and keeps the top 200 (fast pre-filter), then applies mRMR (Minimum Redundancy Maximum Relevance) to select the most informative and least redundant subset. CNN-6 features dominated the final selection (136 of 200), contributing more discriminative information than CNN-5 (64 of 200).
 
 ---
 
@@ -168,7 +171,15 @@ ResNet50 achieved the highest overall accuracy at **85.67%** on the full 3,000-i
 | CNN3 | 62.60% | 61.78% | 64.03% | 62.94% | 0.5 MB |
 | CNN2 | 61.27% | 58.94% | 61.93% | 60.22% | 0.1 MB |
 
-CNN6 achieves the best custom-model accuracy. mRMR + SVM consistently improves over CNN-alone — the largest gain is CNN8 (+6.56%), which benefits most from dimensionality reduction via mRMR.
+CNN6 achieves the best individual custom-model accuracy. mRMR + SVM consistently improves over CNN-alone — the largest gain is CNN8 (+6.56%), which benefits most from dimensionality reduction via mRMR.
+
+### Hybrid CNN-5 + CNN-6 — MI-Filter → mRMR → SVM
+
+| Model | Accuracy | Macro F1 | Mean AUC-ROC | Parameters | Size | Full Pipeline |
+|---|---|---|---|---|---|---|
+| **Hybrid (CNN-5 + CNN-6)** | **82.47%** | **82.35%** | **0.969** | 8.5 M | 34.1 MB | 3.59 ms |
+
+The hybrid model fuses CNN-5 (256-d) and CNN-6 (512-d) embeddings into a 768-d vector, then applies two-stage MI+mRMR feature selection before RBF-SVM classification. It achieves 82.47% accuracy — slightly above the best single CNN-6+SVM (82.33%) — with a Mean AUC-ROC of 0.969.
 
 ---
 
@@ -208,7 +219,7 @@ aggregate-shape-classification/
 │   ├── 05_CNN6.ipynb                     # 6-layer custom CNN — best (82.20%)
 │   ├── 06_CNN7.ipynb                     # 7-layer custom CNN (81.13%)
 │   ├── 07_CNN8.ipynb                     # 8-layer custom CNN (67.07%)
-│   └── 08_Hybrid_CNN_SVM.ipynb           # CNN6 + mRMR + SVM (82.33%)
+│   └── 08_Hybrid_CNN_SVM.ipynb           # CNN-5 + CNN-6 → MI-filter → mRMR → SVM (82.47%)
 │
 ├── subclass_experiments/
 │   ├── 01_ResNet50_4Class_0_100_500_2000.ipynb    # 4-class subset: 95.35%
@@ -258,7 +269,7 @@ DATASET_DIR = "/path/to/your/dataset"   # update this to your local path
 3. `pretrained_models/01_ResNet50.ipynb` — best pretrained model (85.67%)
 4. `pretrained_models/02_EfficientNetB0.ipynb`, `03_MobileNetV2.ipynb`, `04_Xception.ipynb`
 5. `custom_cnn/05_CNN6.ipynb` — best custom architecture (82.20%)
-6. `custom_cnn/08_Hybrid_CNN_SVM.ipynb` — CNN + mRMR + SVM pipeline
+6. `custom_cnn/08_Hybrid_CNN_SVM.ipynb` — CNN-5 + CNN-6 fused hybrid → MI-filter → mRMR → SVM
 7. `subclass_experiments/` — targeted 4-class and 3-class experiments
 8. `analysis/01_ROC_PR_All_Models.py` — generate final evaluation plots
 
