@@ -1,0 +1,2 @@
+Stage,Avg_ms_per_image,Std_ms,Min_ms,Max_ms
+MobileNetV2,4.8913,0.3571,4.3729,6.6514
