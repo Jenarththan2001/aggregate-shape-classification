@@ -1,0 +1,4 @@
+Stage,Avg_ms,Std_ms
+CNN only,2.6718,0.0631
+SVM mRMR-96,0.3013,0.0345
+Full Pipeline,2.9732,-
