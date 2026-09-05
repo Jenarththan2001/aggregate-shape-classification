@@ -1,0 +1,2 @@
+Stage,Avg_ms_per_image,Std_ms,Min_ms,Max_ms
+EfficientNetB0,7.1422,0.2733,6.7963,8.5576
