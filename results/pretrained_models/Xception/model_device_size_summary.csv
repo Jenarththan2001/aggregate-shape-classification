@@ -1,0 +1,2 @@
+model,device_used,device_type,graphics_card,gpu_memory_gb,torch_version,cuda_version,total_parameters,trainable_parameters,model_size_mb,embedding_dim,batch_size,image_size,epochs_configured,patience,min_epochs_before_stop,best_model_path
+Xception PyTorch,cuda,cuda,NVIDIA GeForce RTX 3050 Ti Laptop GPU,3.963,2.6.0+cu124,12.4,21069998,21069998,80.678,128,32,224,50,5,20,/home/jenarththan/Desktop/FYP/May11/Notebooks/Xception_May11_Results/best_xception_model.pth
