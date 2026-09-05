@@ -1,0 +1,3 @@
+Model,Embedding Dim,Total Parameters,Disk Size (MB)
+CNN-5,256,"1,701,446",6.811
+CNN-6,512,"6,816,070",27.27

@@ -1,0 +1,3 @@
+CNN,Embed_Dim,Features_Selected,Pct
+CNN-5,256,64,17.3
+CNN-6,512,136,36.8
