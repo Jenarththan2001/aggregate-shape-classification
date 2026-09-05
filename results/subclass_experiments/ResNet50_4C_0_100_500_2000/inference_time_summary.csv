@@ -1,0 +1,2 @@
+Stage,Avg_ms_per_image,Std_ms,Min_ms,Max_ms
+ResNet50,5.6273,0.5526,5.185,8.0626

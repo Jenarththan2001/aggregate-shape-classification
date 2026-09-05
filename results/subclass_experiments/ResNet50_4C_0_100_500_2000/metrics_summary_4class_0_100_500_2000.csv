@@ -1,0 +1,2 @@
+accuracy,macro_precision,macro_recall,macro_f1,weighted_precision,weighted_recall,weighted_f1,avg_inference_ms_per_image,total_parameters,trainable_parameters,model_size_mb,device_used,graphics_card
+0.9535,0.9539649819721261,0.9535,0.9534827424001299,0.9539649819721261,0.9535,0.9534827424001299,5.6272763699871575,23770820,23770820,90.99402236938477,cuda,NVIDIA GeForce RTX 3050 Ti Laptop GPU
